@@ -18,7 +18,7 @@ export default function Auth() {
     role: "USER",
   });
   const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState(null); // { text, type }
+  const [msg, setMsg] = useState(null);
 
   function flash(text, type = "ok") {
     setMsg({ text, type });
@@ -43,7 +43,7 @@ export default function Auth() {
       const u = json.data?.user || json.data;
       localStorage.setItem("fp_user", JSON.stringify(u));
       setUser(u);
-      flash("Logged in successfully");
+      flash("Authenticated successfully");
     } catch (err) {
       flash(err.message, "err");
     } finally {
@@ -68,7 +68,7 @@ export default function Auth() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Registration failed");
-      flash("Account created! Please login.");
+      flash("Account established. Proceed to login.");
       setTab("login");
     } catch (err) {
       flash(err.message, "err");
@@ -88,7 +88,7 @@ export default function Auth() {
     }
     localStorage.removeItem("fp_user");
     setUser(null);
-    flash("Logged out");
+    flash("Session terminated");
   }
 
   async function fetchCurrentUser() {
@@ -102,7 +102,7 @@ export default function Auth() {
       const u = json.data?.user || json.data;
       localStorage.setItem("fp_user", JSON.stringify(u));
       setUser(u);
-      flash("Profile refreshed");
+      flash("Registry updated");
     } catch (err) {
       flash(err.message, "err");
     } finally {
@@ -111,156 +111,108 @@ export default function Auth() {
   }
 
   const inp =
-    "w-full bg-zinc-900 border border-zinc-800 text-white px-3 py-2.5 text-sm outline-none focus:border-red-600 transition-colors placeholder-zinc-600";
+    "w-full bg-transparent border-b border-zinc-800 text-zinc-200 px-1 py-3 text-sm outline-none focus:border-red-600 transition-all duration-500 placeholder-zinc-700";
 
   return (
-    <div className="max-w-sm mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold tracking-widest uppercase mb-1">
-        Auth
-      </h1>
-      <p className="text-zinc-600 text-xs mb-6">FreeAPI Authentication</p>
+    <div className="max-w-sm mx-auto px-6 py-20 min-h-screen flex flex-col justify-center">
+      <div className="mb-12 relative">
+        <div className="absolute -left-4 top-0 w-1 h-12 bg-red-600"></div>
+        <h1 className="text-3xl font-light tracking-[0.2em] uppercase text-white">
+          Auth
+        </h1>
+        <p className="text-zinc-600 text-[10px] mt-2 tracking-widest uppercase italic">
+          System Access Protocol
+        </p>
+      </div>
 
       {msg && (
         <div
-          className={`mb-4 px-4 py-2 text-xs border ${msg.type === "err" ? "border-red-700 text-red-400 bg-zinc-900" : "border-zinc-700 text-green-400 bg-zinc-900"}`}
+          className={`mb-6 text-[11px] tracking-widest uppercase ${msg.type === "err" ? "text-red-500" : "text-zinc-400"}`}
         >
-          {msg.text}
+          // {msg.text}
         </div>
       )}
 
       {user ? (
-        <div className="border border-zinc-800 p-5 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-red-600 flex items-center justify-center text-xl font-bold uppercase">
-              {(user.username || user.email || "?")[0]}
+        <div className="space-y-8">
+          <div className="flex items-center gap-6">
+            <div className="w-16 h-16 border border-zinc-800 flex items-center justify-center text-2xl font-light text-red-600 bg-zinc-950">
+              {(user.username || "?")[0]}
             </div>
             <div>
-              <p className="font-medium text-sm">{user.username || "—"}</p>
-              <p className="text-zinc-500 text-xs">{user.email || "—"}</p>
+              <p className="text-white tracking-widest text-sm uppercase">
+                {user.username}
+              </p>
+              <p className="text-zinc-600 text-xs mt-1">{user.email}</p>
             </div>
           </div>
-          <div className="border-t border-zinc-800 pt-3 space-y-2 text-xs">
-            <div className="flex justify-between">
-              <span className="text-zinc-500">Role</span>
-              <span className="text-red-400 uppercase tracking-wider">
-                {user.role || "—"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-zinc-500">ID</span>
-              <span className="text-zinc-400 font-mono truncate max-w-40">
-                {user._id || user.id || "—"}
-              </span>
-            </div>
+          <div className="grid grid-cols-2 gap-4 pt-4">
+            <button
+              onClick={fetchCurrentUser}
+              disabled={loading}
+              className="border border-zinc-800 text-zinc-400 text-[10px] py-3 uppercase tracking-[0.2em] hover:bg-zinc-900 transition-all"
+            >
+              Update
+            </button>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 text-white text-[10px] py-3 uppercase tracking-[0.2em] hover:bg-red-700 transition-all"
+            >
+              Exit
+            </button>
           </div>
-          <button
-            onClick={fetchCurrentUser}
-            disabled={loading}
-            className="w-full border border-zinc-700 text-white text-xs py-2 uppercase tracking-wider hover:border-white transition-colors disabled:opacity-40"
-          >
-            {loading ? "Loading…" : "Refresh Profile"}
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full border border-red-700 text-red-500 text-xs py-2 uppercase tracking-wider hover:bg-red-600 hover:text-white transition-colors"
-          >
-            Logout
-          </button>
         </div>
       ) : (
-        <>
-          <div className="flex border-b border-zinc-800 mb-5">
+        <div>
+          <div className="flex gap-8 mb-10">
             {["login", "register"].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className={`px-4 py-2 text-xs uppercase tracking-widest transition-colors ${tab === t ? "text-red-500 border-b border-red-500" : "text-zinc-600 hover:text-white"}`}
+                className={`text-[10px] uppercase tracking-[0.3em] pb-1 ${tab === t ? "text-red-600 border-b border-red-600" : "text-zinc-600"}`}
               >
                 {t}
               </button>
             ))}
           </div>
-
-          {tab === "login" ? (
-            <form onSubmit={handleLogin} className="space-y-3">
-              <input
-                className={inp}
-                placeholder="Username"
-                value={form.username}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, username: e.target.value }))
-                }
-                required
-              />
-              <input
-                className={inp}
-                type="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-                required
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-2.5 uppercase tracking-wider transition-colors disabled:opacity-40"
-              >
-                {loading ? "Logging in…" : "Login"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-3">
-              <input
-                className={inp}
-                placeholder="Username"
-                value={form.username}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, username: e.target.value }))
-                }
-                required
-              />
+          <form
+            onSubmit={tab === "login" ? handleLogin : handleRegister}
+            className="space-y-6"
+          >
+            <input
+              className={inp}
+              placeholder="IDENTITY"
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              required
+            />
+            {tab === "register" && (
               <input
                 className={inp}
                 type="email"
-                placeholder="Email"
+                placeholder="EMAIL"
                 value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 required
               />
-              <input
-                className={inp}
-                type="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-                required
-              />
-              <select
-                className={inp}
-                value={form.role}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, role: e.target.value }))
-                }
-              >
-                <option value="USER">User</option>
-                <option value="ADMIN">Admin</option>
-              </select>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-red-600 hover:bg-red-700 text-white text-xs py-2.5 uppercase tracking-wider transition-colors disabled:opacity-40"
-              >
-                {loading ? "Registering…" : "Create Account"}
-              </button>
-            </form>
-          )}
-        </>
+            )}
+            <input
+              className={inp}
+              type="password"
+              placeholder="CIPHER"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-zinc-100 text-black text-[10px] py-4 uppercase tracking-[0.3em] hover:bg-red-600 hover:text-white transition-all duration-500"
+            >
+              {loading ? "Processing..." : "Initialize Session"}
+            </button>
+          </form>
+        </div>
       )}
     </div>
   );

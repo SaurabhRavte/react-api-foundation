@@ -13,27 +13,28 @@ const links = [
 
 export default function Navbar() {
   return (
-    <nav className="border-b border-zinc-800 bg-black sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 h-12 overflow-x-auto">
-        <span className="text-red-600 font-bold text-sm tracking-widest uppercase mr-4 shrink-0">
-          FREEAPI
-        </span>
-        {links.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === "/"}
-            className={({ isActive }) =>
-              `px-3 py-1.5 text-xs uppercase tracking-widest shrink-0 transition-colors duration-150 ${
-                isActive
-                  ? "text-red-500 border-b border-red-500"
-                  : "text-zinc-500 hover:text-white"
-              }`
-            }
-          >
-            {label}
-          </NavLink>
-        ))}
+    <nav className="border-b border-zinc-900 bg-black/80 backdrop-blur-md sticky top-0 z-100">
+      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-16 overflow-x-auto">
+        <div className="flex items-center gap-3 shrink-0 mr-12">
+          <div className="w-5 h-5 bg-red-600 rotate-45"></div>
+          <span className="text-white font-light text-sm tracking-[0.4em] uppercase">
+            API Call
+          </span>
+        </div>
+        <div className="flex items-center gap-8">
+          {links.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === "/"}
+              className={({ isActive }) =>
+                `text-[10px] uppercase tracking-[0.2em] transition-all hover:text-red-500 shrink-0 ${isActive ? "text-red-600" : "text-zinc-500"}`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </div>
       </div>
     </nav>
   );

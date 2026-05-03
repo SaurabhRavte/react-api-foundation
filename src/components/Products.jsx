@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetch(
@@ -11,83 +10,47 @@ export default function Products() {
     )
       .then((r) => r.json())
       .then((json) => setProducts(json.data?.data || json.data || []))
-      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <Loader />;
-  if (error) return <Error msg={error} />;
-
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold tracking-widest uppercase mb-6">
+    <div className="max-w-7xl mx-auto px-6 py-16">
+      <h1 className="text-4xl font-light tracking-widest text-white uppercase mb-16">
         Products
       </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {products.map((p, i) => {
-          const img = p.thumbnail || p.images?.[0] || "";
-          const rate = p.rating?.rate || p.rating || 0;
-          const stars =
-            "★".repeat(Math.round(rate)) + "☆".repeat(5 - Math.round(rate));
-          return (
-            <div
-              key={i}
-              className="border border-zinc-800 hover:border-red-700 transition-colors flex flex-col group"
-            >
-              <div className="aspect-square bg-white p-4 overflow-hidden">
-                {img ? (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {loading
+          ? [...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="aspect-4/5 bg-zinc-950 border border-zinc-900 animate-pulse"
+              />
+            ))
+          : products.map((p, i) => (
+              <div
+                key={i}
+                className="group border border-zinc-900 p-4 bg-zinc-950 transition-all duration-500 hover:border-zinc-700"
+              >
+                <div className="aspect-square bg-white p-6 mb-6 overflow-hidden flex items-center">
                   <img
-                    src={img}
-                    alt={p.title}
-                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
+                    src={p.thumbnail || p.images?.[0]}
+                    className="w-full grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
                   />
-                ) : (
-                  <div className="w-full h-full bg-zinc-900" />
-                )}
-              </div>
-              <div className="p-3 flex flex-col flex-1">
-                <p className="text-white text-sm font-medium leading-snug line-clamp-2 flex-1">
-                  {p.title || "—"}
-                </p>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-red-500 font-semibold text-sm">
-                    ${p.price ?? "—"}
-                  </span>
-                  {p.category && (
-                    <span className="text-zinc-600 text-xs uppercase tracking-wider border border-zinc-800 px-2 py-0.5">
-                      {p.category}
-                    </span>
-                  )}
                 </div>
-                <p className="text-yellow-500 text-xs mt-1">
-                  {stars}{" "}
-                  <span className="text-zinc-600">
-                    ({p.rating?.count || ""})
+                <div className="flex justify-between items-start gap-2">
+                  <h3 className="text-zinc-200 text-[11px] tracking-widest uppercase line-clamp-1">
+                    {p.title}
+                  </h3>
+                  <span className="text-red-600 text-[11px] font-mono">
+                    ${p.price}
                   </span>
+                </div>
+                <p className="text-zinc-600 text-[9px] uppercase tracking-widest mt-1 italic">
+                  {p.category}
                 </p>
               </div>
-            </div>
-          );
-        })}
+            ))}
       </div>
     </div>
-  );
-}
-
-function Loader() {
-  return (
-    <div className="flex items-center justify-center py-24 text-zinc-600 text-sm gap-2">
-      <Spin />
-      Loading…
-    </div>
-  );
-}
-function Error({ msg }) {
-  return <div className="text-center py-24 text-red-500 text-sm">{msg}</div>;
-}
-function Spin() {
-  return (
-    <span className="inline-block w-4 h-4 border-2 border-zinc-700 border-t-red-600 rounded-full animate-spin" />
   );
 }
